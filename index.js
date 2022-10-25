@@ -49,8 +49,33 @@ function startProxyServers() {
     })
     .listen(8333);
 
-  // nexus
+  const wj3Proxy = new httpProxy.createProxyServer({
+    target: "http://10.136.132.145:8080",
+  });
 
+  const wj3HttpServer = http.createServer(function (req, res) {
+    res.on("error", (error) => {
+      console.log("Error", error);
+    });
+    wj3Proxy.web(req, res);
+  });
+
+  wj3HttpServer
+    .on("upgrade", function (req, socket, head) {
+      console.log("upgrade wj3");
+      socket.on("error", (error) => {
+        console.log("socket Error", error);
+      });
+      wj3Proxy.ws(req, socket, head);
+    })
+    .listen(8145);
+
+  // analytics
+  httpProxy
+    .createProxyServer({ target: "http://10.148.208.48:8084" })
+    .listen(8184);
+
+  // nexus
   httpProxy
     .createProxyServer({ target: "http://10.136.217.47:8080" })
     .listen(8080);
@@ -92,12 +117,12 @@ function startProxyServers() {
     .createProxyServer({ target: "http://10.136.208.23:8080" })
     .listen(8023);
 
-  // dg3
+  /*
   httpProxy
     .createProxyServer({ target: "http://10.136.132.145:8080" })
     .listen(8140);
+    */
 
-  // wj3
   httpProxy
     .createProxyServer({ target: "http://10.136.132.140:8080" })
     .listen(8141);
