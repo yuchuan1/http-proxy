@@ -70,10 +70,15 @@ function startProxyServers() {
     })
     .listen(8145);
 
-  // analytics
+  // analytics for dev
   httpProxy
     .createProxyServer({ target: "http://10.148.208.48:8084" })
     .listen(8184);
+
+  // analytics for production
+  httpProxy
+    .createProxyServer({ target: "http://10.148.208.47:8084" })
+    .listen(8185);
 
   // nexus
   httpProxy
