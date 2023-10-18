@@ -9,6 +9,7 @@ startProxyServers();
 function startProxyServers() {
   const stageProxy = new httpProxy.createProxyServer({
     target: "http://10.136.136.36:8080",
+    keepAlive: true,
   });
 
   const stageHttpServer = http.createServer(function (req, res) {
@@ -30,6 +31,7 @@ function startProxyServers() {
 
   const devProxy = new httpProxy.createProxyServer({
     target: "http://10.136.136.31:8080",
+    keepAlive: true,
   });
 
   const devProxyServer = http.createServer(function (req, res) {
@@ -51,6 +53,7 @@ function startProxyServers() {
 
   const wj3Proxy = new httpProxy.createProxyServer({
     target: "http://10.136.132.145:8080",
+    keepAlive: true,
   });
 
   const wj3HttpServer = http.createServer(function (req, res) {
@@ -72,54 +75,54 @@ function startProxyServers() {
 
   // analytics for dev
   httpProxy
-    .createProxyServer({ target: "http://10.148.208.48:8084" })
+    .createProxyServer({ target: "http://10.148.208.48:8084", keepAlive: true, })
     .listen(8184);
 
   // analytics for production
   httpProxy
-    .createProxyServer({ target: "http://10.148.208.47:8084" })
+    .createProxyServer({ target: "http://10.148.208.47:8084", keepAlive: true, })
     .listen(8185);
 
   // nexus
   httpProxy
-    .createProxyServer({ target: "http://10.136.217.47:8080" })
+    .createProxyServer({ target: "http://10.136.217.47:8080", keepAlive: true, })
     .listen(8080);
   httpProxy
-    .createProxyServer({ target: "http://10.136.132.96:8080" })
+    .createProxyServer({ target: "http://10.136.132.96:8080", keepAlive: true })
     .listen(8096);
 
   httpProxy
-    .createProxyServer({ target: "http://10.136.208.75:8080" })
+    .createProxyServer({ target: "http://10.136.208.75:8080", keepAlive: true })
     .listen(8083);
   httpProxy
-    .createProxyServer({ target: "http://10.136.208.54:8080" })
+    .createProxyServer({ target: "http://10.136.208.54:8080", keepAlive: true })
     .listen(8084);
   // npm server
 
   httpProxy
-    .createProxyServer({ target: "http://10.148.208.49:8081" })
+    .createProxyServer({ target: "http://10.148.208.49:8081", keepAlive: true })
     .listen(8081);
 
   //docker
   httpProxy
-    .createProxyServer({ target: "http://10.148.208.49:8080" })
+    .createProxyServer({ target: "http://10.148.208.49:8080", keepAlive: true })
     .listen(8180);
   httpProxy
-    .createProxyServer({ target: "http://10.148.208.49:8082" })
+    .createProxyServer({ target: "http://10.148.208.49:8082", keepAlive: true })
     .listen(8182);
 
   // gitlab server
-  httpProxy.createProxyServer({ target: "http://10.146.208.7" }).listen(8001);
+  httpProxy.createProxyServer({ target: "http://10.146.208.7", keepAlive: true }).listen(8001);
 
   httpProxy
-    .createProxyServer({ target: "http://10.136.208.34:8080" })
+    .createProxyServer({ target: "http://10.136.208.34:8080", keepAlive: true })
     .listen(8034);
 
   httpProxy
-    .createProxyServer({ target: "http://10.136.208.36:8080" })
+    .createProxyServer({ target: "http://10.136.208.36:8080", keepAlive: true })
     .listen(8036);
   httpProxy
-    .createProxyServer({ target: "http://10.136.208.23:8080" })
+    .createProxyServer({ target: "http://10.136.208.23:8080", keepAlive: true })
     .listen(8023);
 
   /*
@@ -129,7 +132,7 @@ function startProxyServers() {
     */
 
   httpProxy
-    .createProxyServer({ target: "http://10.136.132.140:8080" })
+    .createProxyServer({ target: "http://10.136.132.140:8080", keepAlive: true })
     .listen(8141);
 }
 
