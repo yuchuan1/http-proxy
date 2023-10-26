@@ -1,16 +1,11 @@
-import httpProxy from "http-proxy";
-import http from "http";
+const httpProxy = require("http-proxy");
+const http = require("http");
 
-interface ProxyConfig {
-  target: string;
-  port: number;
-}
-
-const createProxyServer = (config: ProxyConfig) => {
+const createProxyServer = (config) => {
   let server;
 
   const startServer = () => {
-    const proxy = httpProxy.createProxyServer({ target: config.target });
+    const proxy = new httpProxy.createProxyServer({ target: config.target });
 
     server = http.createServer((req, res) => {
       res.on("error", (error) => console.log("Response Error", error));
@@ -39,7 +34,7 @@ const createProxyServer = (config: ProxyConfig) => {
 };
 
 const startProxyServers = () => {
-  const proxyConfigs: ProxyConfig[] = [
+  const proxyConfigs = [
     { target: "http://10.136.136.36:8080", port: 8336 }, // Holmes dev server
     { target: "http://10.136.136.31:8080", port: 8333 }, // Dev server
     { target: "http://10.136.132.145:8080", port: 8145 }, // WJ3 server
