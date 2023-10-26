@@ -1,176 +1,67 @@
-const httpProxy = require("http-proxy");
-const fs = require("fs");
-const https = require("https");
-const http = require("http");
+import httpProxy from "http-proxy";
+import http from "http";
 
-// holmes dev server
-startProxyServers();
-
-function startProxyServers() {
-  const stageProxy = new httpProxy.createProxyServer({
-    target: "http://10.136.136.36:8080",
-    keepAlive: true,
-  });
-
-  const stageHttpServer = http.createServer(function (req, res) {
-    res.on("error", (error) => {
-      console.log("Error", error);
-    });
-    stageProxy.web(req, res);
-  });
-
-  stageHttpServer
-    .on("upgrade", function (req, socket, head) {
-      console.log("upgrade stage");
-      socket.on("error", (error) => {
-        console.log("socket Error", error);
-      });
-      stageProxy.ws(req, socket, head);
-    })
-    .listen(8336);
-
-  const devProxy = new httpProxy.createProxyServer({
-    target: "http://10.136.136.31:8080",
-    keepAlive: true,
-  });
-
-  const devProxyServer = http.createServer(function (req, res) {
-    res.on("error", (error) => {
-      console.log("Error", error);
-    });
-    devProxy.web(req, res);
-  });
-
-  devProxyServer
-    .on("upgrade", function (req, socket, head) {
-      console.log("upgrade");
-      socket.on("error", (error) => {
-        console.log("socket Error", error);
-      });
-      devProxy.ws(req, socket, head);
-    })
-    .listen(8333);
-
-  const wj3Proxy = new httpProxy.createProxyServer({
-    target: "http://10.136.132.145:8080",
-    keepAlive: true,
-  });
-
-  const wj3HttpServer = http.createServer(function (req, res) {
-    res.on("error", (error) => {
-      console.log("Error", error);
-    });
-    wj3Proxy.web(req, res);
-  });
-
-  wj3HttpServer
-    .on("upgrade", function (req, socket, head) {
-      console.log("upgrade wj3");
-      socket.on("error", (error) => {
-        console.log("socket Error", error);
-      });
-      wj3Proxy.ws(req, socket, head);
-    })
-    .listen(8145);
-
-  // analytics for dev
-  httpProxy
-    .createProxyServer({ target: "http://10.148.208.48:8084", keepAlive: true })
-    .listen(8184);
-
-  // analytics for production
-  httpProxy
-    .createProxyServer({ target: "http://10.148.208.47:8084", keepAlive: true })
-    .listen(8185);
-
-  // nexus
-  httpProxy
-    .createProxyServer({ target: "http://10.136.217.47:8080", keepAlive: true })
-    .listen(8080);
-  httpProxy
-    .createProxyServer({ target: "http://10.136.132.96:8080", keepAlive: true })
-    .listen(8096);
-
-  httpProxy
-    .createProxyServer({ target: "http://10.136.208.75:8080", keepAlive: true })
-    .listen(8083);
-  httpProxy
-    .createProxyServer({ target: "http://10.136.208.54:8080", keepAlive: true })
-    .listen(8084);
-  // npm server
-
-  httpProxy
-    .createProxyServer({ target: "http://10.148.208.49:8081", keepAlive: true })
-    .listen(8081);
-
-  //docker
-  httpProxy
-    .createProxyServer({ target: "http://10.148.208.49:8080", keepAlive: true })
-    .listen(8180);
-  httpProxy
-    .createProxyServer({ target: "http://10.148.208.49:8082", keepAlive: true })
-    .listen(8182);
-
-  // gitlab server
-  httpProxy
-    .createProxyServer({ target: "http://10.146.208.7", keepAlive: true })
-    .listen(8001);
-
-  httpProxy
-    .createProxyServer({ target: "http://10.136.208.34:8080", keepAlive: true })
-    .listen(8034);
-
-  httpProxy
-    .createProxyServer({ target: "http://10.136.208.36:8080", keepAlive: true })
-    .listen(8036);
-  httpProxy
-    .createProxyServer({ target: "http://10.136.208.23:8080", keepAlive: true })
-    .listen(8023);
-
-  /*
-  httpProxy
-    .createProxyServer({ target: "http://10.136.132.145:8080" })
-    .listen(8140);
-    */
-
-  httpProxy
-    .createProxyServer({
-      target: "http://10.136.132.140:8080",
-      keepAlive: true,
-    })
-    .listen(8141);
+interface ProxyConfig {
+  target: string;
+  port: number;
 }
 
-/*
-// holmes stage server
-httpProxy
-  .createProxyServer({ target: "http://10.136.132.92:8080" })
-  .listen(8010);
-  
-*/
+const createProxyServer = (config: ProxyConfig) => {
+  let server;
 
-// WJ3
-//10.136.208.75:8080/holmes-web/equipmentParameterMonitoring/rootcause/list/interval?executeStatus=cycle-interval&startTime=2021-10-06T16:00:00.000Z&endTime=2021-10-14T15:59:59.999Z&rangeType=last7days
+  const startServer = () => {
+    const proxy = httpProxy.createProxyServer({ target: config.target });
 
-//10.136.217.47:8080
+    server = http.createServer((req, res) => {
+      res.on("error", (error) => console.log("Response Error", error));
+      proxy.web(req, res);
+    });
 
-// holmes stage server
-/*
-httpProxy
-  .createProxyServer({ target: "http://10.136.132.96:8080" })
-  .listen(8002);
+    server.on("upgrade", (req, socket, head) => {
+      console.log(`upgrade ${config.target}`);
+      socket.on("error", (error) => console.log("Socket Error", error));
+      proxy.ws(req, socket, head);
+    });
 
-httpProxy
-  .createProxyServer({
-    target: {
-      protocol: "https:",
-      host: "jiradelta.deltaww.com",
-      port: 443,
-      ca: fs.readFileSync("./jira.cert.p7b"),
-    },
-    changeOrigin: true,
-    agent: https.globalAgent,
-    secure: false,
-  })
-  .listen(8013);
-  */
+    server.on("error", (error) => {
+      console.log(`Server Error: ${error}`);
+      server.close(() => {
+        console.log(`Restarting server for ${config.target} on port ${config.port}`);
+        startServer();
+      });
+    });
+
+    server.listen(config.port);
+    console.log(`Listening on port ${config.port}`);
+  };
+
+  startServer();
+};
+
+const startProxyServers = () => {
+  const proxyConfigs: ProxyConfig[] = [
+    { target: "http://10.136.136.36:8080", port: 8336 }, // Holmes dev server
+    { target: "http://10.136.136.31:8080", port: 8333 }, // Dev server
+    { target: "http://10.136.132.145:8080", port: 8145 }, // WJ3 server
+    { target: "http://10.148.208.48:8084", port: 8184 }, // Analytics for dev
+    { target: "http://10.148.208.47:8084", port: 8185 }, // Analytics for production
+    { target: "http://10.136.217.47:8080", port: 8080 }, // Nexus server
+    { target: "http://10.136.132.96:8080", port: 8096 }, // Another Nexus server
+    { target: "http://10.136.208.75:8080", port: 8083 }, // Custom server 1
+    { target: "http://10.136.208.54:8080", port: 8084 }, // Custom server 2
+    { target: "http://10.148.208.49:8081", port: 8081 }, // NPM server
+    { target: "http://10.148.208.49:8080", port: 8180 }, // Docker server 1
+    { target: "http://10.148.208.49:8082", port: 8182 }, // Docker server 2
+    { target: "http://10.146.208.7", port: 8001 }, // GitLab server
+    { target: "http://10.136.208.34:8080", port: 8034 }, // Custom server 3
+    { target: "http://10.136.208.36:8080", port: 8036 }, // Custom server 4
+    { target: "http://10.136.208.23:8080", port: 8023 }, // Custom server 5
+    { target: "http://10.136.132.140:8080", port: 8141 }, // Custom server 6
+  ];
+
+  proxyConfigs.forEach((config) => {
+    createProxyServer(config);
+  });
+};
+
+startProxyServers();
