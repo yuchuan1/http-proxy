@@ -7,13 +7,10 @@ const createProxyServer = (config) => {
   const startServer = () => {
     const proxy = httpProxy.createProxyServer({ target: config.target });
 
-    proxy.on("error", (error, req, res) => {
+    proxy.on("error", (error) => {
       console.log(`Proxy Error: ${error}`);
-      res.writeHead(500, {
-        "Content-Type": "text/plain",
-      });
-      res.end("Something went wrong. Restarting the server...");
-      startServer(); // Restart the server
+      // Restart the server
+      startServer();
     });
 
     const server = http.createServer((req, res) => {
