@@ -11,7 +11,6 @@ const createProxyServer = (config) => {
 
     proxy.on("error", async (error) => {
       console.log(`Proxy Error: ${error}`);
-      // Wait for a bit before restarting the server
       await delay(2000);
       startServer();
     });
@@ -34,21 +33,25 @@ const createProxyServer = (config) => {
         servers.forEach((srv) => srv.close());
         servers = [];
         startProxyServers();
+      } else if (error.code === "EADDRINUSE") {
+        console.log(`Port ${config.port} is in use, waiting before restart.`);
+        await delay(5000); // Wait a bit longer for this specific error
+        startServer();
       } else {
         server.close(async () => {
           console.log(
             `Restarting server for ${config.target} on port ${config.port}`
           );
-          // Wait for a bit before restarting the server
           await delay(2000);
           startServer();
         });
       }
     });
 
-    server.listen(config.port);
-    console.log(`Listening on port ${config.port}`);
-    servers.push(server);
+    server.listen(config.port, () => {
+      console.log(`Listening on port ${config.port}`);
+      servers.push(server);
+    });
   };
 
   startServer();
