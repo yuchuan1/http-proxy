@@ -3,13 +3,16 @@ const http = require("http");
 
 let servers = [];
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const createProxyServer = (config) => {
-  const startServer = () => {
+  const startServer = async () => {
     const proxy = httpProxy.createProxyServer({ target: config.target });
 
-    proxy.on("error", (error) => {
+    proxy.on("error", async (error) => {
       console.log(`Proxy Error: ${error}`);
-      // Restart the server
+      // Wait for a bit before restarting the server
+      await delay(2000);
       startServer();
     });
 
@@ -24,7 +27,7 @@ const createProxyServer = (config) => {
       proxy.ws(req, socket, head);
     });
 
-    server.on("error", (error) => {
+    server.on("error", async (error) => {
       console.log(`Server Error: ${error}`);
       if (error.code === "ETIMEDOUT") {
         console.log("ETIMEDOUT error detected. Restarting all servers.");
@@ -32,10 +35,12 @@ const createProxyServer = (config) => {
         servers = [];
         startProxyServers();
       } else {
-        server.close(() => {
+        server.close(async () => {
           console.log(
             `Restarting server for ${config.target} on port ${config.port}`
           );
+          // Wait for a bit before restarting the server
+          await delay(2000);
           startServer();
         });
       }
