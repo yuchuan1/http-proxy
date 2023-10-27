@@ -49,6 +49,7 @@ const startProxyServers = () => {
     { target: "http://10.136.136.31:8080", port: 8333 }, // Dev server
     { target: "http://10.136.136.33:8080", port: 8334 }, // SNR Dev server
     { target: "http://10.136.132.145:8080", port: 8145 }, // WJ3 server
+    { target: "http://10.136.132.131:8080", port: 8146 }, // TY1 server
     { target: "http://10.148.208.48:8084", port: 8184 }, // Analytics for dev
     { target: "http://10.148.208.47:8084", port: 8185 }, // Analytics for production
     { target: "http://10.136.217.47:8080", port: 8080 }, // Nexus server
