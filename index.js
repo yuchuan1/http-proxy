@@ -28,24 +28,17 @@ const createProxyServer = (config) => {
 
     server.on("error", async (error) => {
       console.log(`Server Error: ${error}`);
-      if (error.code === "ETIMEDOUT") {
-        console.log("ETIMEDOUT error detected. Restarting all servers.");
-        servers.forEach((srv) => srv.close());
-        servers = [];
-        startProxyServers();
-      } else if (error.code === "EADDRINUSE") {
-        console.log(`Port ${config.port} is in use, waiting before restart.`);
-        await delay(5000); // Wait a bit longer for this specific error
-        startServer();
-      } else {
-        server.close(async () => {
-          console.log(
-            `Restarting server for ${config.target} on port ${config.port}`
-          );
-          await delay(2000);
-          startServer();
-        });
+      if (error.code === "EADDRINUSE") {
+        console.log(`Port ${config.port} is in use. Waiting before restart.`);
+        await delay(5000);
       }
+      server.close(async () => {
+        console.log(
+          `Restarting server for ${config.target} on port ${config.port}`
+        );
+        await delay(2000);
+        startServer();
+      });
     });
 
     server.listen(config.port, () => {
