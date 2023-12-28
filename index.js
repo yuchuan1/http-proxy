@@ -52,7 +52,7 @@ const createProxyServer = (config) => {
 
 const startProxyServers = () => {
   const proxyConfigs = [
-    { target: "http://10.136.136.36:8080", port: 8336 }, // Holmes dev server
+    { target: "http://10.136.136.36:8080", port: 8336 }, // stage server
     { target: "http://10.136.136.31:8080", port: 8333 }, // Dev server
     { target: "http://10.136.136.33:8080", port: 8334 }, // SNR Dev server
     { target: "http://10.136.132.145:8080", port: 8145 }, // WJ3 server
