@@ -72,7 +72,9 @@ const startProxyServers = () => {
     { target: "http://10.136.208.23:8080", port: 8023 }, // Custom server 5
     { target: "http://10.136.132.140:8080", port: 8141 }, // Custom server 6
     { target: "http://10.136.136.33:8081", port: 8881 }, // Custom server 7 demo oauth
-    { target: "http://10.136.136.33:8080", port: 8882 }, // Custom server 8 demo oauth swagger
+    { target: "http://10.136.136.33:8080", port: 8882 }, // Custom server 8 demo oauth swagger,
+    { target: "http://10.136.132.198:8081", port: 8888 }, // Custom server 9 keycloak login page,
+    
   ];
 
   proxyConfigs.forEach((config) => {
