@@ -1,7 +1,7 @@
 const httpProxy = require("http-proxy");
 const http = require("http");
 
-const servers = [];
+let servers = [];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -10,24 +10,24 @@ const createProxyServer = (config) => {
     const proxy = httpProxy.createProxyServer({ target: config.target });
 
     proxy.on("error", async (error) => {
-      console.error(`Proxy Error: ${error}`);
+      console.log(`Proxy Error: ${error}`);
       await delay(2000);
       startServer();
     });
 
     const server = http.createServer((req, res) => {
-      res.on("error", (error) => console.error("Response Error", error));
+      res.on("error", (error) => console.log("Response Error", error));
       proxy.web(req, res);
     });
 
     server.on("upgrade", (req, socket, head) => {
-      console.log(`Upgrading to WebSocket for ${config.target}`);
-      socket.on("error", (error) => console.error("Socket Error", error));
+      console.log(`upgrade ${config.target}`);
+      socket.on("error", (error) => console.log("Socket Error", error));
       proxy.ws(req, socket, head);
     });
 
     server.on("error", async (error) => {
-      console.error(`Server Error: ${error}`);
+      console.log(`Server Error: ${error}`);
       if (error.code === "EADDRINUSE") {
         console.log(`Port ${config.port} is in use. Waiting before restart.`);
         await delay(5000);
@@ -52,7 +52,7 @@ const createProxyServer = (config) => {
 
 const startProxyServers = () => {
   const proxyConfigs = [
-    { target: "http://10.136.136.36:8080", port: 8336 }, // Stage server
+    { target: "http://10.136.136.36:8080", port: 8336 }, // Holmes dev server
     { target: "http://10.136.136.31:8080", port: 8333 }, // Dev server
     { target: "http://10.136.136.33:8080", port: 8334 }, // SNR Dev server
     { target: "http://10.136.132.145:8080", port: 8145 }, // WJ3 server
@@ -61,6 +61,7 @@ const startProxyServers = () => {
     { target: "http://10.148.208.47:8084", port: 8185 }, // Analytics for production
     { target: "http://10.136.217.47:8080", port: 8080 }, // Nexus server
     { target: "http://10.136.132.96:8080", port: 8096 }, // Another Nexus server
+    { target: "http://10.136.208.73:8080", port: 8073 },
     { target: "http://10.136.208.75:8080", port: 8083 }, // Custom server 1
     { target: "http://10.136.208.54:8080", port: 8084 }, // Custom server 2
     { target: "http://10.148.208.49:8081", port: 8081 }, // NPM server
@@ -73,8 +74,9 @@ const startProxyServers = () => {
     { target: "http://10.136.132.140:8080", port: 8141 }, // Custom server 6
     { target: "http://10.136.136.33:8081", port: 8881 }, // Custom server 7 demo oauth
     { target: "http://10.136.136.33:8080", port: 8882 }, // Custom server 8 demo oauth swagger
-    { target: "http://10.136.132.198:8081", port: 8888 }, // Custom server 9 keycloak login page
+    { target: "http://10.136.132.198:8081", port: 8888 },  // Custom server 9 keycloak login page
     { target: "http://10.146.208.12:9002", port: 8889 }, // Custom server 10 keycloak login page
+    { target: "http://10.146.206.30", port: 8030 },
   ];
 
   proxyConfigs.forEach((config) => {
@@ -83,9 +85,3 @@ const startProxyServers = () => {
 };
 
 startProxyServers();
-
-process.on("SIGINT", () => {
-  console.log("Shutting down proxy servers...");
-  servers.forEach((server) => server.close());
-  process.exit(0);
-});
